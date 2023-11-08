@@ -1,0 +1,11 @@
+version: '3.0'
+services:
+  app:
+    build: .
+    restart: always
+    volumes:
+      - videos:/tv_downloader/videos
+    env_file:
+      - .env
+volumes:
+  videos:
