@@ -4,8 +4,6 @@ services:
     build: .
     restart: always
     volumes:
-      - videos:/tv_downloader/videos
+      - ./tv_downloader_videos:/tv_downloader/videos
     env_file:
       - .env
-volumes:
-  videos:
