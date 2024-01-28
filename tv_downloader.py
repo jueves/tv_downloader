@@ -29,7 +29,8 @@ def download_video(message):
         reply = yt_dlp_manager(links_list=text_list, max_height=max_height)
         update_history(links_list=text_list)
     else:
-        reply = "This is not going to work."
+        reply = ("This is a single user bot, you are not allowed to use it. To deploy"
+                " your own check https://github.com/jueves/tv_downloader")
     return(reply)
 
 def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
