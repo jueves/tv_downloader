@@ -45,7 +45,7 @@ def update_history(url_list):
     for url in url_list:
         result = subprocess.run(['yt-dlp', '--get-filename', url],
                                 capture_output=True, text=True, check=True)
-        video_name = result.stdout
+        video_name = result.stdout.strip()
         history[datetime.now().strftime("%Y/%m/%d %H:%M:%S_%f")] = {"url":url, "name":video_name}
 
     with open(HISTORY_FILE, "w", encoding="utf8") as f:
