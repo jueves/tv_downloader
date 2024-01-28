@@ -6,6 +6,8 @@ RUN pip install yt-dlp pyTelegramBotAPI
 
 WORKDIR /tv_downloader
 
+RUN mkdir  /tv_downloader/videos
+
 COPY tv_downloader.py /tv_downloader
 
 CMD python tv_downloader.py
