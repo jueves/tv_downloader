@@ -5,50 +5,67 @@ import subprocess
 from datetime import datetime
 
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
-TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
-HISTORY_FILE = "videos/history.json"
+ALLOWED_TELEGRAM_USER = os.environ.get("ALLOWED_TELEGRAM_USER")
+HISTORY_FILENAME = "videos/history.json"
+VIDEOS_PATH = "videos"
+LINKS_FILENAME = "links.txt"
+DEFAULT_MAX_HEIGHT = "720"
 
 def download_video(message):
-    allowed_user = str(message.from_user.id)
-    if allowed_user == TELEGRAM_USER_ID:
+    '''
+    Gets a message with urls and an optional video max resolution height.
+    Downloads videos with yt-dlp
+    Saves url, date and title to history.
+    Returns outcome as a string.
+    '''
+    user = str(message.from_user.id)
+    if user == ALLOWED_TELEGRAM_USER:
         text_list = message.text.split()
-        path = "videos"
         if text_list[-1][:4] != "http":
             max_height = text_list.pop()               
         else:
-            max_height = "720"
+            max_height = DEFAULT_MAX_HEIGHT
 
-        with open("links.txt", "w") as f:
-            for url in text_list:
-                f.write(url+"\n")
-        try:
-            yt_command = f"yt-dlp --add-metadata -f 'bv*[height<={max_height}]+ba\' -o {path}/%\(title\)s.%\(ext\)s -a links.txt" 
-            subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
-            update_history(url_list=text_list)
-            reply = "Video downloaded succesfully."
-        except subprocess.CalledProcessError as e:
-            reply = f"An error occurred: {e}"
+        reply = yt_dlp_manager(links_list=text_list, max_height=max_height)
+        update_history(links_list=text_list)
     else:
         reply = "This is not going to work."
     return(reply)
 
-def update_history(url_list):
+def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
     '''
-    Updates history file with URLs in url_list and each of it's titles.
+    Downloads links in links_list using yt-dlp
+    '''
+    with open("links.txt", "w") as f:
+        for url in links_list:
+            f.write(url+"\n")
+
+    try:
+        yt_command = (f"yt-dlp --add-metadata -f 'bv*[height<={max_height}]+ba\'"
+                      f" -o {VIDEOS_PATH}/%\(title\)s.%\(ext\)s -a {LINKS_FILENAME}")
+        subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
+        reply = "Video downloaded succesfully."
+    except subprocess.CalledProcessError as e:
+        reply = f"An error occurred: {e}"
+    return(reply)
+
+def update_history(links_list):
+    '''
+    Updates history file with URLs in links_list and each of it's titles.
     '''
     try:
-        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+        with open(HISTORY_FILENAME, "r", encoding="utf-8") as f:
             history = json.load(f)
     except FileNotFoundError:
         history = {}
 
-    for url in url_list:
+    for url in links_list:
         result = subprocess.run(['yt-dlp', '--get-filename', url],
                                 capture_output=True, text=True, check=True)
         video_name = result.stdout.strip()
         history[datetime.now().strftime("%Y/%m/%d %H:%M:%S_%f")] = {"url":url, "name":video_name}
 
-    with open(HISTORY_FILE, "w", encoding="utf8") as f:
+    with open(HISTORY_FILENAME, "w", encoding="utf8") as f:
         json.dump(history, f, indent=4)
 
 bot = telebot.TeleBot(TELEGRAM_KEY)
