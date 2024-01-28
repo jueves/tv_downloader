@@ -11,15 +11,22 @@ HISTORY_FILE = "videos/history.json"
 def download_video(message):
     allowed_user = str(message.from_user.id)
     if allowed_user == TELEGRAM_USER_ID:
-        url = message.text
+        text_list = message.text.split(" ")
+        print(text_list)
+        url = text_list[0]
         path = "videos"
         try:
+            if len(text_list) == 2:
+                resolution_height = text_list[1]
+            else:
+                resolution_height = "720"
+
             result = subprocess.run(['yt-dlp', '--get-filename', url],
                                     capture_output=True, text=True, check=True)
             video_name = result.stdout
             print("----------------VIDEO NAME:\n" + video_name)
             subprocess.run(['yt-dlp', '--add-metadata', '-o', f'{path}/%(title)s.%(ext)s',
-                            url], check=True)
+                            f'\'bv*[height<={resolution_height}]+ba\'', url], check=True)
             update_history(url, video_name)
             reply = "Video downloaded succesfully."
         except subprocess.CalledProcessError as e:
