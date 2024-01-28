@@ -43,6 +43,7 @@ def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
 
     try:
         yt_command = (f"yt-dlp --add-metadata -f 'bv*[height<={max_height}]+ba\'"
+                      " --merge-output-format mkv --embed-metadata "
                       f" -o {VIDEOS_PATH}/%\(title\)s.%\(ext\)s -a {LINKS_FILENAME}")
         subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
         reply = "Video downloaded succesfully."
