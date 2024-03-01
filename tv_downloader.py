@@ -63,7 +63,7 @@ def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT, subpath="Varios"):
                       " --merge-output-format mkv --embed-metadata "
                       f" -o {download_path}/%\\(title\\)s.%\\(ext\\)s -a {LINKS_FILENAME}")
         subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
-        reply = "Video downloaded succesfully."
+        reply = "Video descargado correctamente."
     except subprocess.CalledProcessError as e:
         reply = (f"tv_dowloader error: command '{e.cmd}' return with error"
                  f"(code {e.returncode}): {e.output}")
@@ -99,9 +99,13 @@ def echo_all(message):
         bot.send_message(message.chat.id, text)
 
     if message.text == "/start":
-        answer("Hi")
+        answer("Bienvenido\n"
+               "Ejemplos:\n"
+               "/categoría url1 url2 url3 resolución_máxima\n"
+               "url1 url2\n"
+               "url")
     else:
-        answer("Downloading video...")
+        answer("Descargando video...")
         answer(download_video(message))
 
 bot.infinity_polling()
