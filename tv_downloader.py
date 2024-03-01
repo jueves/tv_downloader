@@ -48,7 +48,8 @@ def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
         subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
         reply = "Video downloaded succesfully."
     except subprocess.CalledProcessError as e:
-        reply = f"An error occurred: {e}"
+        reply = (f"tv_dowloader error: command '{e.cmd}' return with error"
+                 f"(code {e.returncode}): {e.output}")
     return(reply)
 
 def update_history(links_list):
