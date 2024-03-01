@@ -13,10 +13,10 @@ DEFAULT_MAX_HEIGHT = "720"
 DEFAULT_SUBPATH = "Varios"
 
 categories = {
-    "/Ejercicio":{"max_height":"720",
+    "/ejercicio":{"max_height":"720",
                  "subpath":"Ejercicio"
                  },
-    "/Estudio":{"max_height":"1080",
+    "/estudio":{"max_height":"1080",
                  "subpath":"Estudio"
                  }
     }
