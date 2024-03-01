@@ -1,6 +1,6 @@
 version: '3.0'
 services:
-  app:
+  tv_downloader:
     build: .
     restart: always
     volumes:
