@@ -10,6 +10,16 @@ HISTORY_FILENAME = "videos/history.json"
 VIDEOS_PATH = "videos"
 LINKS_FILENAME = "links.txt"
 DEFAULT_MAX_HEIGHT = "720"
+DEFAULT_SUBPATH = "Varios"
+
+categories = {
+    "/Ejercicio":{"max_height":"720",
+                 "subpath":"Ejercicio"
+                 },
+    "/Estudio":{"max_height":"1080",
+                 "subpath":"Estudio"
+                 }
+    }
 
 def download_video(message):
     '''
@@ -21,22 +31,29 @@ def download_video(message):
     user = str(message.from_user.id)
     if user == ALLOWED_TELEGRAM_USER:
         text_list = message.text.split()
-        if text_list[-1][:4] != "http":
-            max_height = text_list.pop()               
+        if text_list[0] in categories.keys():
+            max_height = categories[text_list[0]]["max_height"]
+            subpath = categories[text_list[0]]["subpath"]
+            text_list = text_list[1:]
         else:
             max_height = DEFAULT_MAX_HEIGHT
+            subpath = DEFAULT_SUBPATH
+        if text_list[-1][:4] != "http":
+            max_height = text_list.pop()
 
-        reply = yt_dlp_manager(links_list=text_list, max_height=max_height)
+        reply = yt_dlp_manager(links_list=text_list, max_height=max_height, subpath=subpath)
         update_history(links_list=text_list)
     else:
         reply = ("This is a single user bot, you are not allowed to use it. To deploy"
                 " your own check https://github.com/jueves/tv_downloader")
-    return(reply)
+    return reply
 
-def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
+def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT, subpath="Varios"):
     '''
     Downloads links in links_list using yt-dlp
     '''
+    download_path = VIDEOS_PATH + "/" + subpath
+
     with open("links.txt", "w", encoding="utf8") as f:
         for url in links_list:
             f.write(url+"\n")
@@ -44,13 +61,13 @@ def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
     try:
         yt_command = (f"yt-dlp --add-metadata -f 'bv*[height<={max_height}]+ba\'"
                       " --merge-output-format mkv --embed-metadata "
-                      f" -o {VIDEOS_PATH}/%\\(title\\)s.%\\(ext\\)s -a {LINKS_FILENAME}")
+                      f" -o {download_path}/%\\(title\\)s.%\\(ext\\)s -a {LINKS_FILENAME}")
         subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
         reply = "Video downloaded succesfully."
     except subprocess.CalledProcessError as e:
         reply = (f"tv_dowloader error: command '{e.cmd}' return with error"
                  f"(code {e.returncode}): {e.output}")
-    return(reply)
+    return reply
 
 def update_history(links_list):
     '''
