@@ -1,8 +1,8 @@
 import os
 import json
-import telebot
 import subprocess
 from datetime import datetime
+import telebot
 
 TELEGRAM_KEY = os.environ.get("TELEGRAM_KEY")
 ALLOWED_TELEGRAM_USER = os.environ.get("ALLOWED_TELEGRAM_USER")
@@ -37,14 +37,14 @@ def yt_dlp_manager(links_list, max_height=DEFAULT_MAX_HEIGHT):
     '''
     Downloads links in links_list using yt-dlp
     '''
-    with open("links.txt", "w") as f:
+    with open("links.txt", "w", encoding="utf8") as f:
         for url in links_list:
             f.write(url+"\n")
 
     try:
         yt_command = (f"yt-dlp --add-metadata -f 'bv*[height<={max_height}]+ba\'"
                       " --merge-output-format mkv --embed-metadata "
-                      f" -o {VIDEOS_PATH}/%\(title\)s.%\(ext\)s -a {LINKS_FILENAME}")
+                      f" -o {VIDEOS_PATH}/%\\(title\\)s.%\\(ext\\)s -a {LINKS_FILENAME}")
         subprocess.run(yt_command, shell=True, check=True, capture_output=True, text=True)
         reply = "Video downloaded succesfully."
     except subprocess.CalledProcessError as e:
